@@ -16,11 +16,12 @@ limitations under the License.
 package main
 
 import (
+	"fmt"
 	"my-calc/cmd"
 )
 
 func main() {
-	//fmt.Println("inside main ---> Before cmd.Execute()")
+	fmt.Println("inside main ---> Before cmd.Execute()")
 	cmd.Execute()
-	//fmt.Println("inside main ---> After cmd.Execute()")
+	fmt.Println("inside main ---> After cmd.Execute()")
 }
