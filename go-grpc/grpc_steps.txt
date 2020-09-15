@@ -1,0 +1,148 @@
+To implement Unary Grpc
+
+1. Create folder in your working directory.
+
+2. Open vs code and add another folder name "greet"
+
+3. Inside "greet" create another "greetpb" folder 
+
+4. create "greet.proto" file inside "greetpb" folder
+
+5. Add the following code in "greet.proto" file
+
+	syntax = "proto3";
+	package greet;
+	option go_package="greetpb";
+
+
+	message Greeting{
+
+    	string first_name=1;
+   	 string last_name=2;
+	}
+	message GreetRequest{
+
+    	Greeting greeting=1;
+	}
+	message GreetResponse{
+    	string response=1;
+	}
+	service GreetService{
+
+   	rpc Greet(GreetRequest) returns (GreetResponse){}
+
+    	}
+
+
+6. Generate "greet.pb.go" file by running following command:
+
+	protoc  PATH --go_out=plugins=grpc:.
+
+7.  Inside "greet" folder create "greet_client"  and "greet_server" folders 
+
+8. Create "client.go" and "server.go" files in their respective folder
+
+9. Add the following code in "client.go" :
+
+		package main
+import (
+	"go-course/greet/greetpb"  //path of greetpb 
+	"google.golang.org/grpc"
+	"fmt"
+	"log"
+	"context"
+	"io"
+)
+func main(){
+	fmt.Println("hi, i am client")
+		
+	// connection to localhost
+
+	conn,err:=grpc.Dial("localhost:50052", grpc.WithInsecure())
+	if err!=nil{
+		log.Fatalf("couldnot connect %v", err)
+
+	}
+	defer conn.Close()
+	c:=greetpb.NewGreetServiceClient(conn)
+
+	doUnary(c)
+	fmt.Printf("created client: %f",c)
+
+	doUnarySum(c)
+
+	
+}
+func doUnary(c greetpb.GreetServiceClient){
+	fmt.Println("unary rpc starting...\n")
+	
+	req:=&greetpb.GreetRequest{
+		Greeting:&greetpb.Greeting{
+			FirstName: "hema",
+		LastName: "deepika",
+
+		},
+		
+
+	}
+	res,err:=c.Greet(context.Background(), req)
+	if err!=nil{
+		log.Fatalf("errer while calling rpc %v",err)
+	}
+	log.Printf("the response from greet %v", res.Response)
+}
+
+
+10. Add the code in server.go file:
+
+		package main
+
+import (
+	"context"
+	"fmt"
+	"go-course/greet/greetpb"
+	"log"
+	"net"
+	"io"
+
+	"google.golang.org/grpc"
+)
+
+type server struct{}
+
+func (*server) Greet(ctx context.Context, req *greetpb.GreetRequest) (*greetpb.GreetResponse, error) {
+	fmt.Printf("greet fun invoked %v", req)
+firstname:=req.GetGreeting().GetFirstName()
+lastname:=req.GetGreeting().GetLastName()
+response:="hello"+firstname+""+lastname
+res:= &greetpb.GreetResponse{
+	Response:response,
+}
+return res, nil
+}
+
+func main() {
+	fmt.Println("hello world")
+
+	lis, err := net.Listen("tcp", "0.0.0.0:50052")
+	if err != nil {
+		log.Fatal("failed", err)
+	}
+	s := grpc.NewServer()
+	greetpb.RegisterGreetServiceServer(s, &server{})
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve %v", err)
+	}
+
+}
+
+11. Run the server code and client code for the result
+
+12. The project structure should be:
+
+	->go-grpc
+	      > greet
+	           >greet_client/client.go
+	           >greet_server/server.go
+	           > greetpb/greetpb.go
+		     ->greet.proto

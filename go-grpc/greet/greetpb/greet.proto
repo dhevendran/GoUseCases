@@ -1,0 +1,63 @@
+syntax = "proto3";
+package greet;
+option go_package="greetpb";
+
+//rpc for printing name
+
+message Greeting{
+
+    string first_name=1;
+    string last_name=2;
+}
+message GreetRequest{
+
+    Greeting greeting=1;
+}
+message GreetResponse{
+    string response=1;
+}
+// rpc for adding two numbers
+
+message Suming{
+
+    int32 first_num=1;
+    int32 last_num=2;
+}
+message SumRequest{
+
+    Suming suming=1;
+}
+message SumResponse{
+    int32 response=1;
+}
+// server stream rpc for PrimeNumberDecomposition
+
+
+message PrimedecoRequest{
+    int64 num=1;
+}
+message PrimedecoResponse{
+
+    int64 prime_res=1;
+
+}
+//client stream for finding average of numbers
+
+message CompAverageRequest{
+
+    int64 number=1;
+}
+message CompAverageResponse{
+
+    double Average_res=1;
+}
+service GreetService{
+//unary rpc
+    rpc Greet(GreetRequest) returns (GreetResponse){}
+//unary rpc
+    rpc Sum(SumRequest) returns (SumResponse){}
+//server stream rpc
+    rpc PrimeNumberDecomposition(PrimedecoRequest) returns (stream PrimedecoResponse){}
+//client stream rpc
+    rpc ComputeAverage(stream CompAverageRequest) returns (CompAverageResponse){}
+}
