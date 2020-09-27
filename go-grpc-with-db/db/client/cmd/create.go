@@ -16,12 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-	"context"
 	"fmt"
-	"log"
 
 	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
 )
 
 // createCmd represents the create command
@@ -53,6 +50,7 @@ func init() {
 	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+/*
 func connectToServer() {
 	fmt.Println("*** connectToServer Start ***")
 	conn, err := grpc.Dial("localhost:50052", grpc.WithInsecure())
@@ -88,3 +86,4 @@ func doPost(c dbpb.GetPostServiceClient) {
 	log.Printf("Success MyPost response : %v\n", res.Response)
 
 }
+*/
