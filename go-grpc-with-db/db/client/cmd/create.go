@@ -16,9 +16,14 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"log"
+
+	"github.com/dhevendran/GoUseCases/go-grpc-with-db/db/dbpb"
 
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
 )
 
 // createCmd represents the create command
@@ -32,7 +37,8 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("create called")
+		fmt.Println("Create called")
+		postUser(args)
 	},
 }
 
@@ -50,8 +56,7 @@ func init() {
 	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-/*
-func connectToServer() {
+func postUser(args []string) {
 	fmt.Println("*** connectToServer Start ***")
 	conn, err := grpc.Dial("localhost:50052", grpc.WithInsecure())
 	if err != nil {
@@ -61,22 +66,22 @@ func connectToServer() {
 	defer conn.Close()
 	c := dbpb.NewGetPostServiceClient(conn)
 
-	doPost(c)
-
-	//doGet(c)
-
-	//doDelete(c)
+	doPost(c, args)
 
 	fmt.Println("*** connectToServer End ***")
 
 }
-func doPost(c dbpb.GetPostServiceClient) {
+func doPost(c dbpb.GetPostServiceClient, args []string) {
+
+	if len(args) != 3 {
+		log.Fatalf("Enter 'First Name' 'Last Name' and 'ID' with space seperation in the same order\n")
+	}
 
 	req := &dbpb.PostMsgRequest{
 		Msg: &dbpb.Msg{
-			FirstName: "Dhevendran",
-			LastName:  "Kulandaivelu",
-			Id:        "10",
+			FirstName: args[0],
+			LastName:  args[1],
+			Id:        args[2],
 		},
 	}
 	res, err := c.MyPost(context.Background(), req)
@@ -86,4 +91,3 @@ func doPost(c dbpb.GetPostServiceClient) {
 	log.Printf("Success MyPost response : %v\n", res.Response)
 
 }
-*/
