@@ -1,0 +1,32 @@
+syntax = "proto3";
+package db;
+option go_package="dbpb";
+
+//rpc for printing name
+
+message Msg{
+    string first_name=1;
+    string last_name=2;    
+    string id=3;
+}
+message PostMsgRequest{
+    Msg msg=1;
+}
+message PostMsgResponse{
+    string response=1;
+}
+ 
+message GetMsgRequest{
+    string id=1;
+}
+message GetMsgResponse{
+    Msg msg=1;
+}
+
+service GetPostService{
+//unary rpc
+    rpc MyPost(PostMsgRequest) returns (PostMsgResponse){}
+    rpc MyGet(GetMsgRequest) returns (GetMsgResponse){}
+    rpc MyDelete(GetMsgRequest) returns (GetMsgResponse){}
+ 
+}

@@ -10,6 +10,18 @@ import (
 	"../../greet/greetpb"
 
 	"google.golang.org/grpc"
+
+	"database/sql"
+
+	_ "github.com/lib/pq"
+)
+
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	password = "postgres"
+	dbname   = "emp"
 )
 
 type server struct{}
@@ -19,9 +31,43 @@ func (*server) Greet(ctx context.Context, req *greetpb.GreetRequest) (*greetpb.G
 	firstname := req.GetGreeting().GetFirstName()
 	lastname := req.GetGreeting().GetLastName()
 	response := "hello" + firstname + "" + lastname
+
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+
+	// Opening a connection to the database
+	// The sql.Open() function takes two arguments - a driver name, and a string that tells that driver how to connect to our database - and then returns a pointer to a sql.DB and an error.
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	// db.Ping() forces our code to actually open up a connection to the database
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%T", db)
+	fmt.Println("Successfully connected!")
+
+	sqlStatement := `
+	SELECT * FROM emp_table WHERE role_id=$1
+	RETURNING role_id`
+	role_id := ""
+	err = db.QueryRow(sqlStatement, "3").Scan(&role_id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("New record ID is:", role_id)
+
 	res := &greetpb.GreetResponse{
 		Response: response,
 	}
+
 	return res, nil
 }
 
@@ -85,16 +131,21 @@ func (*server) ComputeAverage(stream greetpb.GreetService_ComputeAverageServer) 
 	return nil
 }
 func main() {
-	fmt.Println("hello world")
+	fmt.Println("Server started")
 
+	//Just to log the errors
+	fmt.Println("Main is working")
 	lis, err := net.Listen("tcp", "0.0.0.0:50052")
 	if err != nil {
 		log.Fatal("failed", err)
 	}
+	fmt.Println("After net.Listen")
 	s := grpc.NewServer()
 	greetpb.RegisterGreetServiceServer(s, &server{})
+	fmt.Println("After RegisterGreetServiceServer")
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve %v", err)
 	}
+	fmt.Println("At End")
 
 }
