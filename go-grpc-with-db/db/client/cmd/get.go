@@ -28,8 +28,8 @@ import (
 // getCmd represents the get command
 var getCmd = &cobra.Command{
 	Use:   "get <ID>",
-	Short: "Gets the details of the given ID.",
-	Long:  `Gets the details of the given ID.`,
+	Short: "Gets DB entry for the given ID.",
+	Long:  `Gets DB entry for the given ID.. For example, 'clinet get 3000'`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("get called")
 		getUser(args)

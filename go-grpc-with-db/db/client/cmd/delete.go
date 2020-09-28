@@ -28,8 +28,8 @@ import (
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
 	Use:   "delete <ID>",
-	Short: "Deletes the DB entry of the given ID.",
-	Long:  `Deletes the DB entry of the given ID.`,
+	Short: "Deletes DB entry for the given ID.",
+	Long:  `Deletes DB entry for the given ID.. For example, 'clinet delete 3000'`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("delete called")
 		deleteUser(args)

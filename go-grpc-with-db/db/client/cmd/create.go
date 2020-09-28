@@ -29,8 +29,8 @@ import (
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:   "create <First Name> <Last Name> <ID>",
-	Short: "Create a DB entry for the given detals",
-	Long:  `Create a DB entry for the given detals.`,
+	Short: "Create a DB entry for the given detals.",
+	Long:  `Create a DB entry for the given detals. For example, 'clinet create Dhevendran Kulandaivelu 3000'`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Create called")
 		postUser(args)
