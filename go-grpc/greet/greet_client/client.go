@@ -20,10 +20,10 @@ func main() {
 	defer conn.Close()
 	c := greetpb.NewGreetServiceClient(conn)
 
-	doUnary(c)
-	fmt.Printf("created client: %f", c)
+	//doUnary(c)
+	//fmt.Printf("created client: %f", c)
 
-	doUnarySum(c)
+	//doUnarySum(c)
 
 	doServerStream(c)
 
@@ -66,7 +66,7 @@ func doServerStream(c greetpb.GreetServiceClient) {
 	fmt.Println("server stream fun invokes \n")
 
 	req := &greetpb.PrimedecoRequest{
-		Num: 120,
+		Num: 31313,
 	}
 	stream, err := c.PrimeNumberDecomposition(context.Background(), req)
 	if err != nil {

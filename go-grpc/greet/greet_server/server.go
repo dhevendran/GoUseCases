@@ -85,19 +85,23 @@ func (*server) Sum(ctx context.Context, req *greetpb.SumRequest) (*greetpb.SumRe
 }
 
 func (*server) PrimeNumberDecomposition(req *greetpb.PrimedecoRequest, stream greetpb.GreetService_PrimeNumberDecompositionServer) error {
-	fmt.Printf("primedeco fun invoked %v", req)
+	//fmt.Printf("primedeco fun invoked %v\n", req)
 
 	num := req.GetNum()
 	divisor := int64(2)
+	fmt.Println("                           num    -->", num)
+	fmt.Println("                          divisor -->", divisor)
 	for num > 1 {
 		if num%divisor == 0 {
 			stream.Send(&greetpb.PrimedecoResponse{
 				PrimeRes: divisor,
 			})
 			num = num / divisor
+			fmt.Println("If:                num/divisor -->", num)
 		} else {
 
 			divisor++
+			fmt.Println("Else: The divisor is increated --> ", divisor)
 		}
 	}
 
