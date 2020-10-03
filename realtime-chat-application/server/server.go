@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"io"
-	"my-calc/realtime-chat-application/chat"
 	"net"
 	"sync"
+
+	"../../realtime-chat-application/chat"
 
 	"google.golang.org/grpc"
 )

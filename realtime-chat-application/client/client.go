@@ -5,8 +5,9 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"my-calc/realtime-chat-application/chat"
 	"os"
+
+	"../../realtime-chat-application/chat"
 
 	"google.golang.org/grpc"
 )
