@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"os"
@@ -15,7 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -24,8 +21,6 @@ import (
 )
 
 var collection *mongo.Collection
-var bucket *gridfs.Bucket
-var fsFiles *mongo.Collection
 
 type server struct {
 }
@@ -237,82 +232,6 @@ func (*server) CreateBlog(ctx context.Context, req *blogpb.CreateBlogRequest) (*
 
 }
 
-func (*server) FileUpload(stream blogpb.BlogService_FileUploadServer) error {
-	fmt.Println("FileUpload Request")
-	var data []byte
-	i := true
-	var fileName string
-	for {
-		req, err := stream.Recv()
-		if i {
-			fmt.Printf("\n%s", req.GetFileName())
-			fileName = req.GetFileName()
-		}
-
-		if err == io.EOF {
-			fmt.Printf("\n%s", data)
-
-			uploadStream, err := bucket.OpenUploadStream(
-				fileName,
-			)
-			if err != nil {
-				log.Fatalf("Error while opening file streaming : %v", err)
-			}
-
-			defer uploadStream.Close()
-
-			fileSize, err := uploadStream.Write(data)
-			if err != nil {
-				log.Fatalf("Error while writing file : %v", err)
-
-			}
-			return stream.SendAndClose(&blogpb.FileUploadResponse{
-				Message: fmt.Sprintf("Write file to DB was successful. File size: %d M\n", fileSize),
-			})
-		}
-		newline := "\n"
-		data = append(data, req.Content...)
-		data = append(data, newline...)
-
-		if err != nil {
-			log.Fatalf("Error while reading file streaming : %v", err)
-		}
-		i = false
-	}
-}
-
-func (*server) FileDownload(ctx context.Context, req *blogpb.FileDownloadRequest) (*blogpb.FileDownloadResponse, error) {
-
-	fmt.Println("FileDownload Request")
-
-	var results bson.M
-	err := fsFiles.FindOne(context.Background(), bson.M{}).Decode(&results)
-	if err != nil {
-		return nil, status.Errorf(
-			codes.NotFound,
-			fmt.Sprintf("Cannot find file: %v", err),
-		)
-	}
-	// you can print out the results
-	fmt.Println(results)
-
-	fileName := req.FileName
-
-	var buf bytes.Buffer
-	_, err = bucket.DownloadToStreamByName(fileName, &buf)
-	if err != nil {
-		return nil, status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Cannot download file from DB: %v", err),
-		)
-	}
-
-	return &blogpb.FileDownloadResponse{
-		Content: []byte(buf.Bytes()),
-	}, nil
-
-}
-
 func main() {
 	//if we crash the go code, we get the file name and line number
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -333,15 +252,6 @@ func main() {
 
 	collection = client.Database("mydb").Collection("blog")
 
-	//Creating bucket for file upload
-	db := client.Database("myfiles")
-	fsFiles = db.Collection("fs.files")
-	bucket, err = gridfs.NewBucket(
-		db,
-	)
-	if err != nil {
-		log.Fatalf("Failed to Create Bucket: %v", err)
-	}
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 
 	if err != nil {

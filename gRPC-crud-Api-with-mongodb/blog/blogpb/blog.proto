@@ -51,6 +51,24 @@ message ListBlogRequest{
 message ListBlogResponse{
     Blog blog = 1;
 }
+
+message FileUploadRequest {
+    string FileName=1;
+    bytes Content = 2;
+}
+
+message FileUploadResponse {
+    string Message = 1;
+}
+
+message FileDownloadRequest {
+    string FileName = 1;
+}
+
+message FileDownloadResponse {
+    bytes Content = 1;
+}
+
 service BlogService{
 
     rpc CreateBlog(CreateBlogRequest) returns (CreateBlogResponse);
@@ -65,4 +83,6 @@ service BlogService{
     //return NotFound status code if id not found
     rpc ListBlog(ListBlogRequest) returns (stream ListBlogResponse);
     
+    rpc FileUpload (stream FileUploadRequest) returns (FileUploadResponse);
+    rpc FileDownload (FileDownloadRequest) returns (FileDownloadResponse);
 }
